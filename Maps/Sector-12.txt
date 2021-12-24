@@ -1,0 +1,31 @@
+Sector-12
+
+          78                                                     o 97           
+          o                               [icarus microsystems] /               
+          G [powerhouse gym]  o                                C                
+    1     |                   |                               /                 
+    o-----+---x----o 4        T [alpha ent.]     o-------o   /                  
+          |   3     \         |                           \ /                 
+          |          \        |     [iron gym]             x 95                
+     (79) x           \       |                           / \                 
+          |            o-?----+----x----G--o 10          /   o----$--o          
+          |                   |    8        \        94 x                      
+       80 x       [city hall] |              x 11      /  [world stock exchange]
+          |                   |               \       /                        
+          |                   C [cia]          \     /                         
+          H  [hospital]       |                 C   C [universal energy]        
+          |                   o      [deltaone]  \ /                           
+          |                          35 o---------x 13/92/36                    
+          C  [megacorp]  33            /         / \                           
+          |              o------------o 34      /   \                          
+ (29)     |             /    [carmichael sec.] C     \                         
+    o-----+-----x------o                      /       U [rothman university]    
+          |     31     32              [nsa] ?                                  
+          |                                 /                                   
+          C [blade industries]             C                                    
+          |                               / [four sigma]                        
+          |      [joe's guns]            /                                      
+          |                             /                                       
+       85 o--C--------C--------T-------o 88                [the slums] S        
+                                                                                
+          [foodnstuff]     [travel agency]                                      
