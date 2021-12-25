@@ -39,7 +39,19 @@ export async function main(ns) {
 		return;
 	}
 	var test = ns.args[0];
-	var primefactors = [];
+	var primefactor = 0;
 	var primes = eratosthenes(test);
-	ns.tprint("Largest Prime Factor of " + test + " is " + primes[primes.length-1]);
+
+    //check if primes are factors of test
+    for (var i = primes.length-1; i >= 0; i--) {
+        if (primes[i] > test / 2) {
+            continue;
+        }
+        if(test % primes[i] === 0) {
+            primefactor = primes[i];
+            break;
+        }
+    }
+
+	ns.tprint("Largest Prime Factor of " + test + " is " + primefactor);
 }
