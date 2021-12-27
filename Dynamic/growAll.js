@@ -6,6 +6,8 @@ export async function main(ns) {
 	var runon = ns.getHostname();
 
 	var servers = getHackedServers(ns);
+	// Shuffle so that we don't always attempt the same server first every time
+	servers = shufflearray(servers);
 	for (let server of servers) {
 		var runit = true;
 		// Need to have a reason to run on the server
@@ -76,4 +78,13 @@ function getHackedServers(ns) {
 		}
 	}
 	return hacked;
+}
+
+// https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shufflearray(unshuffled) {
+	let shuffled = unshuffled
+		.map((value) => ({ value, sort: Math.random() }))
+		.sort((a, b) => a.sort - b.sort)
+		.map(({ value }) => value);
+	return shuffled;
 }
