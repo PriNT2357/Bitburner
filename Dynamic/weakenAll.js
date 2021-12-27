@@ -2,20 +2,21 @@
 export async function main(ns) {
 	var delaybetweenruns = 10; //seconds
 	var overprovisioning = 0.9; //allocate x% more threads
-	var weakenscriptpath = "/dynamic/weaken.js";
+	var scriptpath = "/dynamic/weaken.js";
 	var runon = ns.getHostname();
+	ns.disableLog("ALL");
 
 	var servers = getHackedServers(ns);
 	// Shuffle so that we don't always attempt the same server first every time
 	servers = shufflearray(servers);
 	for (let server of servers) {
 		var runit = true;
-		// Need to have a reason to weaken server
+		// Need to have a reason to run on server
 		var moneymax = ns.getServerMaxMoney(server);
 		if (moneymax <= 0) {
-			runit = false;
+			continue;
 		}
-		// Do not weaken if already doing so (can't run multiple instances)
+		// Do not run if already doing so (can't run multiple instances)
 		var activeprocesses = ns.ps(runon);
 		for (let proc of activeprocesses) {
 			if (proc.args[0] === server && proc.filename == ns.getScriptName()) {
@@ -24,15 +25,22 @@ export async function main(ns) {
 			}
 		}
 
+		// Begin custom script logic
 		var security = ns.getServerSecurityLevel(server);
 		var securitymin = ns.getServerMinSecurityLevel(server);
-		var t_weaken = Math.ceil((security - securitymin) * 20 * overprovisioning);
-		var m_weaken = ns.getScriptRam(weakenscriptpath);
-		var memorymax = ns.getServerMaxRam(runon) - ns.getServerUsedRam(runon);
-		while (m_weaken * t_weaken > memorymax) {
-			t_weaken = Math.floor(memorymax / m_weaken);
+		var threads = Math.ceil((security - securitymin) * 20 * overprovisioning);
+		// End custom script logic
+
+		if (threads === NaN || typeof threads === undefined || threads === Infinity) {
+			threads = 10;// set some default to prevent crashes
+			runit = false;
 		}
-		if (t_weaken < 1) {
+		var s_memory = ns.getScriptRam(scriptpath);
+		var memorymax = ns.getServerMaxRam(runon) - ns.getServerUsedRam(runon);
+		while (s_memory * threads > memorymax) {
+			threads = Math.floor(memorymax / s_memory);
+		}
+		if (threads < 1) {
 			runit = false;
 		}
 
@@ -40,14 +48,14 @@ export async function main(ns) {
 			continue;
 		}
 		// run on the current machine (less memory)
-		ns.run(weakenscriptpath, t_weaken, server);
+		ns.run(scriptpath, threads, server);
 		// run on the specified machine (more expensive)
-		// ns.exec(weakenscriptpath, runon, t_weaken, server);
+		// ns.exec(scriptpath, runon, threads, server);
 
 		await ns.sleep(1000);
 	}
 	await ns.sleep(delaybetweenruns * 1000);
-	ns.spawn("/dynamic/weakenall.js");
+	ns.spawn(ns.getScriptName());
 }
 
 /** @param {NS} ns **/

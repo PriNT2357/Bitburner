@@ -14,12 +14,9 @@ export async function main(ns) {
 		// Need to have a reason to run on server
 		var moneymax = ns.getServerMaxMoney(server);
 		if (moneymax <= 0) {
-			runit = false;
+			continue;
 		}
-		var money = ns.getServerMoneyAvailable(server);
-		if (money <= 0) {
-			runit = false;
-		}
+
 		// Do not run if already doing so (can't run multiple instances)
 		var activeprocesses = ns.ps(runon);
 		for (let proc of activeprocesses) {
@@ -29,19 +26,25 @@ export async function main(ns) {
 			}
 		}
 
-		// reduce money value to try and prevent NaN from being returned
-		var t_hack = Math.ceil(ns.hackAnalyzeThreads(server, money * .9) * overprovisioning);
-		if (t_hack === NaN || typeof t_hack === undefined || t_hack === Infinity) {
-			ns.print("*** t_hack is invalid ***");
-			t_hack = 10;// set some default to prevent crashes
+		// Begin custom script logic
+		var money = ns.getServerMoneyAvailable(server);
+		if (money <= 0) {
 			runit = false;
 		}
-		var m_hack = ns.getScriptRam(scriptpath);
-		var memorymax = ns.getServerMaxRam(runon) - ns.getServerUsedRam(runon);
-		while (m_hack * t_hack > memorymax) {
-			t_hack = Math.floor(memorymax / m_hack);
+		// reduce money value to try and prevent NaN from being returned
+		var threads = Math.ceil(ns.hackAnalyzeThreads(server, money * .9) * overprovisioning);
+		// End custom script logic
+
+		if (threads === NaN || typeof threads === undefined || threads === Infinity) {
+			threads = 10;// set some default to prevent crashes
+			runit = false;
 		}
-		if (t_hack < 1) {
+		var s_memory = ns.getScriptRam(scriptpath);
+		var memorymax = ns.getServerMaxRam(runon) - ns.getServerUsedRam(runon);
+		while (s_memory * threads > memorymax) {
+			threads = Math.floor(memorymax / s_memory);
+		}
+		if (threads < 1) {
 			runit = false;
 		}
 
@@ -49,14 +52,14 @@ export async function main(ns) {
 			continue;
 		}
 		// run on the current machine (less memory)
-		ns.run(scriptpath, t_hack, server);
+		ns.run(scriptpath, threads, server);
 		// run on the specified machine (more expensive)
-		// ns.exec(scriptpath, runon, t_hack, server);
+		// ns.exec(scriptpath, runon, threads, server);
 
 		await ns.sleep(1000);
 	}
 	await ns.sleep(delaybetweenruns * 1000);
-	ns.spawn("/dynamic/hackall.js");
+	ns.spawn(ns.getScriptName());
 }
 
 /** @param {NS} ns **/
