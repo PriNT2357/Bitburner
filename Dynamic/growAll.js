@@ -55,7 +55,7 @@ export async function main(ns) {
 		await ns.sleep(1000);
 	}
 	await ns.sleep(delaybetweenruns * 1000);
-	ns.spawn(ns.getScriptName());
+	//ns.spawn(ns.getScriptName());
 }
 
 /** @param {NS} ns **/
