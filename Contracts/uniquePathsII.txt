@@ -14,11 +14,22 @@
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	var contract = ns.args[0];
-	var data = ns.codingcontract.getData(contract);
+	if (ns.args.length !== 2) {
+		ns.tprint("Submits an answer to a contract on a given server");
+		ns.tprint("Usage: > run " + ns.getScriptName() + " SERVER CONTRACT");
+		ns.exit();
+	}
 
-	// var flags = [[0,0,0,0,0,0,0,],[1,0,0,0,1,0,0,],[0,0,0,0,0,0,1,],[0,1,0,1,0,0,0,],[0,1,0,0,0,1,0,],[0,0,0,0,0,0,0,],[0,0,0,0,0,0,0,],[0,0,0,1,0,0,0,],[0,1,0,0,0,0,0,],[0,0,0,0,0,0,0,],[0,0,0,0,0,0,1,],[0,0,0,0,0,0,0,]];
+	ns.clearLog();
+	await ns.sleep(1000);
+
+	var server = ns.args[0];
+	var contract = ns.args[1];
+	var flags = ns.codingcontract.getData(contract, server);
+
+	// var flags = [[0,0,0,0,0,0,1,],[1,0,0,0,1,0,0,],[0,0,0,0,0,0,1,],[0,1,0,1,0,0,0,],[0,1,0,0,0,1,0,],[0,0,0,0,0,0,0,],[0,0,0,0,0,0,0,],[0,0,0,1,0,0,0,],[0,1,0,0,0,0,0,],[0,0,0,0,0,0,0,],[0,0,0,0,0,0,1,],[0,0,0,0,0,0,0,]];
 	// the above flags array should result in 219 unique paths
+	// var flags = [[0, 0, 0, 0, 0, 0, 1], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0],];
 	for (let row of flags) {
 		ns.tprint(row);
 	}
@@ -29,12 +40,12 @@ export async function main(ns) {
 	var result = sum2(x, y, flags, ns, grid);
 	printgrid(ns, grid);
 	ns.tprint("Unique Paths: " + result);
-	//var wasvalid = ns.codingcontract.attempt(result, contract, server, true);
-	//if (wasvalid === "") {
-	//	ns.tprint("Incorrect");
-	//} else {
-	//	ns.tprint(wasvalid);
-	//}
+	var wasvalid = ns.codingcontract.attempt(result, contract, server);
+	if (wasvalid === "") {
+		ns.tprint("Answer is incorrect");
+	} else {
+		ns.tprint(ns.getScriptLogs());
+	}
 }
 
 function sum2(x, y, flags, ns, grid) {
@@ -53,7 +64,7 @@ function sum2(x, y, flags, ns, grid) {
 		paths = 0;
 		return paths;
 	}
-	if (col >= flags.length) {
+	if (col >= flags[0].length) {
 		// rather than return 1 for all right edges
 		paths = 0;
 		return paths;
