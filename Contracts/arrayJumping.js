@@ -18,30 +18,52 @@ export async function main(ns) {
 	//             ^
 	//              \exact to last index
 
-	var elements = ns.args[0].split(',');
-	var exactindexjump = [];
-	var pointer = 0;
+// new test case: 3,1,9,7,0,2,5,4,6,3 should be accessable
 
-	var ok = canexactjump(ns, elements);
-	if (ok) {
-		ns.tprintf("End can be reached.");
-	} else {
-		ns.tprintf("End cannot be reached.");
+	if (ns.args.length !== 2) {
+		ns.tprint("Submits an answer to a contract on a given server");
+		ns.tprint("Usage: > run " + ns.getScriptName() + " SERVER CONTRACT");
+		ns.exit();
 	}
+	var server = ns.args[0];
+	var contract = ns.args[1];
+	var data = ns.codingcontract.getData(contract, server);
+
+	if (typeof data === "string") {
+		data = data.split(',');
+	}
+
+	// var exactindexjump = [];
+	// var pointer = 0;
+
+	var ok = canexactjump(ns, data);
+	if (ok) {
+		ns.tprint("End can be reached.");
+	} else {
+		ns.tprint("End cannot be reached.");
+	}
+	// var wasvalid = ns.codingcontract.attempt(ok, contract, server);
+	// if (wasvalid === "") {
+	// 	ns.tprint("Answer is incorrect");
+	// } else {
+	// 	ns.tprint(ns.getScriptLogs());
+	// }
 
 }
 
 
 // determine if the end can be jumped to from any position
 function canexactjump(ns, elements) {
-	ns.tprintf("Testing: " + elements);
+	ns.tprint("Testing: " + elements);
+	ns.tprint(elements);
 	if (elements.length <= 1) {
 		ns.tprintf("  no more elements to test");
 		return 1;
 	}
 	for (var i = 0; i < elements.length; i++) {
-		var exactjump = Number(2 * i) + Number(elements[i]);
-		ns.tprintf("  exact jump: " + exactjump);
+		// var exactjump = Number(2 * i) + Number(elements[i]);
+		var exactjump = Number(elements[i]);
+		ns.tprint("  exact jump: " + exactjump);
 		// exactindexjump.push(exactjump);
 		if (exactjump === elements.length - 1) {
 			//can jump from here to final index

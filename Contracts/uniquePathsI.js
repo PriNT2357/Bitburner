@@ -12,15 +12,25 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	if (ns.args.length !== 2) {
-		ns.tprint("Requires two numbers for grid size");
-		ns.tprint("Example useage: Unique_Paths_I.js 5 8");
-		return;
+		ns.tprint("Submits an answer to a contract on a given server");
+		ns.tprint("Usage: > run " + ns.getScriptName() + " SERVER CONTRACT");
+		ns.exit();
 	}
-	var x = ns.args[0];
-	var y = ns.args[1];
-
-	var result = sum2(x, y);
+	var server = ns.args[0];
+	var contract = ns.args[1];
+	var data = ns.codingcontract.getData(contract, server);
+	if (data.length !== 2) {
+		ns.tprint("Invalid data from contract");
+		ns.exit();
+	}
+	var result = sum2(data[0], data[1]);
 	ns.tprint("Unique Paths: " + result);
+	var wasvalid = ns.codingcontract.attempt(result, contract, server);
+	if (wasvalid === "") {
+		ns.tprint("Answer is incorrect");
+	} else {
+		ns.tprint(ns.getScriptLogs());
+	}
 }
 
 function sum2(x, y) {

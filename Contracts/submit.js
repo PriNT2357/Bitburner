@@ -15,11 +15,12 @@ export async function main(ns) {
 	ns.tprint(answer);
 	var submit = await ns.prompt("Do you wish to submit the answer?");
 	if (submit) {
-		var wasvalid = ns.codingcontract.attempt(answer, contract, server, true);
+		
+		var wasvalid = ns.codingcontract.attempt(answer, contract, server);
 		if (wasvalid === "") {
 			ns.tprint("Answer is incorrect");
 		} else {
-			ns.tprint(wasvalid);
+			ns.tprint(ns.getScriptLogs());
 		}
 	}
 	else {
