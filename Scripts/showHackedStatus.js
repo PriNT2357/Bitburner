@@ -49,7 +49,7 @@ function getHackedServers(ns) {
 	var target = "home";
 	var scanned = [];
 	var toscan = [target];
-	var hacked = [target];
+	var hacked = ["home"];
 
 	while (toscan.length > 0) {
 		target = toscan.shift();
