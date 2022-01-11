@@ -7,15 +7,19 @@ export async function main(ns) {
 			ns.print("Checking for backdoor on " + server);
 			var installed = ns.getServer(server).backdoorInstalled;
 			if (!installed) {
+				//connect first since it runs in terminal
+				ns.run("/public/findit.js", 1, server, 1);
 				ns.print("Installing backdoor on " + server);
 				ns.killall(server);
-				await ns.sleep(3000);
+				await ns.sleep(5000);
 				var ran = ns.exec("/simple/installBackdoor.js", server);
 				if (ran !== 0) {
+					ns.print("/simple/installBackdoor.js ran successfully " );
 					installs++;
 				}
 			} else {
 				installs++;
+				ns.print("Already installed");
 			}
 		}
 		await ns.sleep(60000);
