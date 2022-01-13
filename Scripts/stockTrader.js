@@ -1,0 +1,70 @@
+/** @param {NS} ns **/
+export async function main(ns) {
+	const purchaseForecase = 0.7; // Purchase if the forecast is over this value
+	const sellForecase = 0.5; // Sell if forecase is below this value
+
+	ns.tail();
+	ns.disableLog("sleep");
+	ns.clearLog();
+	var symbols = ns.stock.getSymbols();
+	while (true) {
+		var positions = [];
+		for (var i = 0; i < symbols.length; i++) {
+			var s = symbols[i];
+			var data = {
+				"symbol": s,
+				"owned": false,
+				"maxShares": ns.stock.getMaxShares(s),
+				"profit": ns.stock.getSaleGain(s, ns.stock.getPosition(s)[0], "Long"),
+				"ask": ns.stock.getAskPrice(s),
+				"bid": ns.stock.getBidPrice(s),
+				"sharesLong": ns.stock.getPosition(s)[0],
+				"avgPriceLong": ns.stock.getPosition(s)[1],
+				"sharesShort": ns.stock.getPosition(s)[3],
+				"avgPriceShort": ns.stock.getPosition(s)[4],
+				"forecast": ns.stock.getForecast(s)
+			};
+			if (ns.stock.getPosition(s)[1] > 0) {
+				// average purchase price is not zero (is an owned stock)
+				data.owned = true;
+			}
+			positions.push(data);
+		}
+
+		//ns.print(positions);
+		// Check if any sales need to be made
+		for (var i = 0; i < positions.length; i++) {
+			var p = positions[i];
+			if (p.owned) {
+				if (p.forecast < sellForecase) {
+					ns.print(ns.sprintf("Selling %d shares of %s due to poor forecast (%0.2f) ($%5s)", p.sharesLong, p.symbol, p.forecast, formatNumber(p.profit)));
+					ns.stock.sell(p.symbol, p.sharesLong);
+				}
+			}
+			else {
+				if (p.forecast > purchaseForecase) {
+					ns.print(ns.sprintf("Purchasing %5s at %5s/share", p.symbol, formatNumber(p.ask)));
+					var cost = ns.stock.getPurchaseCost(p.symbol, p.maxShares, "Long");
+					if (cost < ns.getPlayer().money) {
+						ns.stock.buy(p.symbol, p.maxShares);
+					}
+				}
+			}
+		}
+		await ns.sleep(5000);
+	}
+}
+
+
+function formatNumber(n) {
+	const div = 1000;
+	var m = n * div; // account for first run of do{}
+	var labels = ["", "k", "m", "b", "t"];
+	var label = "";
+	do {
+		m = Number(m / div).toFixed(1); //convert to closest label
+		label = labels.shift();
+	} while (m >= div && labels.length !== 0)
+
+	return m + label;
+}
