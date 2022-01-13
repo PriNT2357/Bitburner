@@ -4,6 +4,10 @@ export async function main(ns) {
 	var installs = 0;
 	do {
 		for (let server of servers) {
+			if (!ns.hasRootAccess(server)) {
+				ns.print("Still need root access on " + server);
+				continue;
+			}
 			ns.print("Checking for backdoor on " + server);
 			var installed = ns.getServer(server).backdoorInstalled;
 			if (!installed) {
