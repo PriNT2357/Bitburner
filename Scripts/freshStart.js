@@ -6,6 +6,7 @@ export async function main(ns) {
 	var progs = 0;
 	var firstLoop = true;
 	while (progs < programs.length) {
+		progs = 0;
 		if (firstLoop) {
 			firstLoop = false;
 			ns.run("/simple/deployLoop.js");
