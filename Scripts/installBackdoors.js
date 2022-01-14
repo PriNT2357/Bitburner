@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	const servers = ["CSEC", "avmnite-02h", "I.I.I.I", "run4theh111z"];
+	const servers = ["CSEC", "avmnite-02h", "I.I.I.I", "run4theh111z", "The-Cave"];
 	var installs = 0;
 	do {
 		for (let server of servers) {
