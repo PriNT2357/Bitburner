@@ -1,14 +1,16 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	const purchaseForecase = 0.7; // Purchase if the forecast is over this value
+	const purchaseForecase = 0.6; // Purchase if the forecast is over this value
 	const sellForecase = 0.5; // Sell if forecase is below this value
-
+	const moneyBuffer = 1000000; // Do not buy if money would go below this value
 	ns.tail();
 	ns.disableLog("sleep");
 	ns.clearLog();
 	var symbols = ns.stock.getSymbols();
+	var netProfit = 0;
 	while (true) {
 		var positions = [];
+		var printProfit = false;
 		for (var i = 0; i < symbols.length; i++) {
 			var s = symbols[i];
 			var data = {
@@ -37,19 +39,26 @@ export async function main(ns) {
 			var p = positions[i];
 			if (p.owned) {
 				if (p.forecast < sellForecase) {
-					ns.print(ns.sprintf("Selling %d shares of %s due to poor forecast (%0.2f) ($%5s)", p.sharesLong, p.symbol, p.forecast, formatNumber(p.profit)));
+					// ns.print(ns.sprintf("Selling %s shares of %s due to poor forecast (%0.2f) ($%5s)", (p.sharesLong), p.symbol, p.forecast, formatNumber(p.profit)));
 					ns.stock.sell(p.symbol, p.sharesLong);
+					netProfit += p.profit;
+					printProfit = true;
 				}
 			}
 			else {
 				if (p.forecast > purchaseForecase) {
-					ns.print(ns.sprintf("Purchasing %5s at %5s/share", p.symbol, formatNumber(p.ask)));
+					// ns.print(ns.sprintf("Purchasing %5s at %5s/share", p.symbol, formatNumber(p.ask)));
 					var cost = ns.stock.getPurchaseCost(p.symbol, p.maxShares, "Long");
-					if (cost < ns.getPlayer().money) {
+					if (cost < ns.getPlayer().money - 100000 - moneyBuffer) {
 						ns.stock.buy(p.symbol, p.maxShares);
+						netProfit -= cost;
+						printProfit = true;
 					}
 				}
 			}
+		}
+		if (printProfit) {
+			ns.print(ns.sprintf("Running Profit: $%8s", ns.nFormat(netProfit, "0a")));
 		}
 		await ns.sleep(5000);
 	}
